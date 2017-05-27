@@ -33,3 +33,8 @@ vignettes/*.pdf
 *.knit.md
 .Rproj.user
 *.Rproj
+
+# R related files that do not need version control
+.Rproj.user
+pcaCar.Rproj
+.Rhistory
