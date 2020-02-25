@@ -1,0 +1,129 @@
+---
+title: "Visualizations of credit modelling"
+author: "Kristian Larsen"
+output: 
+  flexdashboard::flex_dashboard:
+    vertical_layout: scroll
+---
+
+```{r setup, include=FALSE}
+# Data management packages
+library(readr) 
+library(lubridate)
+library(magrittr)
+library(plyr)
+library(dplyr) 
+library(skimr)
+library(gridExtra) 
+# Table packages
+library(sjPlot)
+library(sjmisc)
+library(sjlabelled)
+# Visualization packages
+library(ggplot2) 
+library(plotly)
+library(ggthemes)
+library(flexdashboard)
+
+# Read dataset
+index<- read.csv("https://raw.githubusercontent.com/knl84/R-Dashboard/master/german_credit.csv")
+loan<-index
+revalue(loan$loan_status, c("Does not meet the credit policy. Status:Charged Off" = "Charged Off")) -> loan$loan_status
+revalue(loan$loan_status, c("Does not meet the credit policy. Status:Fully Paid" = "Fully Paid")) -> loan$loan_status
+loan %>% group_by(loan$loan_status) %>% dplyr::summarize(total = n()) -> loan_status_data
+loan %>% group_by(loan$loan_status) %>% dplyr::summarize(total = n()) -> loan_status_data
+
+data("efc")
+efc <- as_factor(efc, c161sex, c172code)
+m1 <- lm(barthtot ~ c160age + c12hour + c161sex + c172code, data = efc)
+m2 <- lm(neg_c_7 ~ c160age + c12hour + c161sex + e17age, data = efc)
+```
+
+Visualizations
+
+### Chart on customers
+```{r}
+ggplot(data = loan,aes(x = grade)) + geom_bar(color = "blue",fill ="green") +geom_text(stat='count', aes(label=..count..))+ theme_solarized()
+ggplotly(p = ggplot2::last_plot())
+```
+### Chart on customers living
+```{r}
+ggplot(data = loan,aes(x = home_ownership)) + geom_bar(color = "blue",fill ="green") +geom_text(stat='count', aes(label=..count..))+ theme_solarized()
+ggplotly(p = ggplot2::last_plot())
+```
+
+### Chart with customer living and loan status
+```{r}
+ggplot(data=loan, aes(x=home_ownership, fill=loan_status)) + geom_bar()
+ggplotly(p = ggplot2::last_plot())
+```
+### Customer and loan verification
+```{r}
+ggplot(data=loan, aes(x=verification_status, fill=loan_status))+ geom_bar()
+ggplotly(p = ggplot2::last_plot())
+```
+
+### Loan amount
+```{r}
+ggplot(data = loan,aes(x = loan_amnt)) + geom_bar(color = 'green')
+ggplotly(p = ggplot2::last_plot())
+```
+### Interest rate
+```{r}
+ggplot(data = loan,aes(x = int_rate))+ geom_bar(color = 'green')
+ggplotly(p = ggplot2::last_plot())
+```
+
+###Histogram on loan amount
+```{r}
+
+ggplot(data = loan,aes (x = loan_amnt,fill= grade))+ geom_histogram()
+ggplotly(p = ggplot2::last_plot())
+```
+###Histogram  on interest rate
+```{r}
+
+ggplot(data = loan,aes (x = int_rate,fill= grade))+ geom_histogram()
+ggplotly(p = ggplot2::last_plot())
+```
+
+### Density on interest rate
+```{r}
+ggplot(data = loan,aes(x = int_rate)) + geom_density(fill = 'green',color = 'blue')
+ggplotly(p = ggplot2::last_plot())
+```
+### Density on loan amount
+```{r}
+ggplot(data = loan,aes(x = loan_amnt)) + geom_density(fill = 'green',color = 'blue')
+ggplotly(p = ggplot2::last_plot())
+```
+
+###Density on loan based on grade type
+```{r}
+ggplot(data = loan,aes(x = loan_amnt,fill = grade)) + geom_density()
+ggplotly(p = ggplot2::last_plot())
+```
+###Density on interest rate based on grade type
+```{r}
+ggplot(data = loan,aes(x = int_rate,fill = grade)) + geom_density()
+ggplotly(p = ggplot2::last_plot())
+```
+
+### Box plot interest rate & purpose
+```{r}
+boxplot(int_rate ~ purpose, col="darkgreen", data=loan)
+```
+### Boxplot interest rate & grade 
+```{r}
+boxplot(int_rate ~ grade, col="darkgreen", data=loan)
+```
+
+### Regression model 1
+```{r}
+tab_model(m1)
+```
+###ression model 2
+```{r}
+tab_model(m2)
+```
+
